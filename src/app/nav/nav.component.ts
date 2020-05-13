@@ -1,6 +1,7 @@
 // tslint:disable-next-line: quotemark
 import { Component, OnInit } from "@angular/core";
 import { AuthService } from '../services/auth.service';
+import { AlertifyService } from '../services/alertify.service';
 
 @Component({
   selector: 'app-nav',
@@ -9,25 +10,30 @@ import { AuthService } from '../services/auth.service';
 })
 export class NavComponent implements OnInit {
   model: any = {};
-  constructor(private authService: AuthService) {}
+  username: any;
+  constructor(
+    private authService: AuthService,
+    private alertify: AlertifyService
+  ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.username = this.authService.decodedToken?.unique_name;
+  }
   login() {
     this.authService.login(this.model).subscribe(
       (next) => {
-        console.log('Logged in successfully');
+        this.alertify.sucess('Logged In Successfully');
       },
       (error) => {
-        console.log('Failed to login');
+        this.alertify.error(error);
       }
     );
   }
   loggedIn() {
-    const token = localStorage.getItem('token');
-    return !!token;
+    return this.authService.loggedIn();
   }
   logout() {
     localStorage.removeItem('token');
-    console.log('logged out');
+    this.alertify.message('Logged Out');
   }
 }
